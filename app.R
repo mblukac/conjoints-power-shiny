@@ -8,6 +8,7 @@
 library(shiny)
 library(ggplot2)
 library(shinythemes)
+library(ggrepel)
 
 # 1. Shiny App ----------------------------------------------------------------
 # Define UI for application that draws a histogram
@@ -15,42 +16,85 @@ ui <- fluidPage(
     theme = shinytheme("yeti"),
 
     # Application title
-    titlePanel("Conjoint Experiments: Statistical Power Analysis"),
+    titlePanel("Conjoint experiments: Power Analysis"),
 
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
             
+            fluidRow(
+                box(width = 12, title = "", 
+                    splitLayout(
+                        cellWidths = c("25%", "75%"),
+                        textInput("num_respondents_text", "Respondents",
+                                  value = "2000"),
+                        sliderInput("num_respondents",
+                                    "",
+                                    min = 500,
+                                    max = 5000,
+                                    value = 2000,
+                                    step = 100,
+                                    width = '90%')
+                    )
+                )
+            ),
             
-            sliderInput("num_respondents",
-                        "Number of subjects:",
-                        min = 1,
-                        max = 5000,
-                        value = 2000),
-            sliderInput("num_tasks",
-                        "Number of trials:",
-                        min = 1,
-                        max = 20,
-                        value = 5),
-            sliderInput("true_coef",
-                        "Expected effect size (%):",
-                        min = 0.01,
-                        max = 0.2,
-                        value = 0.02),
-            sliderInput("num_lvls",
-                        "Number of levels:",
-                        min = 2,
-                        max = 30,
-                        value = 4)
+            fluidRow(
+                box(width = 12, title = "",
+                    splitLayout(
+                        cellWidths = c("25%", "75%"),
+                        textInput("num_tasks_text", "Tasks",
+                                  value = "5"),
+                        sliderInput("num_tasks",
+                                    "",
+                                    min = 1,
+                                    max = 20,
+                                    value = 5,
+                                    width = "90%")
+                    )
+                )
+            ),
+            
+            fluidRow(
+                box(width = 12, title = "",
+                    splitLayout(
+                        cellWidths = c("25%", "75%"),
+                        textInput("true_coef_text", "Effect size (%)",
+                                  value = "0.02"),
+                        sliderInput("true_coef",
+                                    "",
+                                    min = 0.01,
+                                    max = 0.2,
+                                    value = 0.02)
+                    )
+                )
+            ),
+            
+            fluidRow(
+                box(width = 12, title = "",
+                    splitLayout(
+                        cellWidths = c("25%", "75%"),
+                        textInput("num_lvls_text", "Variable levels",
+                                  value = "4"),
+                        sliderInput("num_lvls",
+                                    "",
+                                    min = 2,
+                                    max = 30,
+                                    value = 4)
+                    )
+                )
+            )
         ),
 
         # Show a plot of the generated distribution
         mainPanel(
            
-            textOutput("summary"),
+            #textOutput("summary"),
             
             textOutput("predpwr"),
+            
+            br(),
             
             #plotly::plotlyOutput("heatplot")
             plotOutput("heatplot")
@@ -59,23 +103,80 @@ ui <- fluidPage(
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
 
-    #output$distPlot <- renderPlot({
-    #    # generate bins based on input$bins from ui.R
-    #    x    <- faithful[, 2]
-    #    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-    #    # draw the histogram with the specified number of bins
-    #    hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    #})
-    
-    output$summary <- renderText({
-        paste("You selected a conjoint design with", input$num_respondents, 
-              "respondents,", input$num_tasks, "trials,", 
-              input$num_lvls, "levels.", 
-              "Your expected effect size is", input$true_coef, ".")
+    ### Connect text fields to sliders
+    # Respondents
+    observe({
+        updateTextInput(
+            session = session,
+            inputId = "num_respondents_text",
+            value = input$num_respondents
+        )
     })
+    observe({
+        updateSliderInput(
+            session = session,
+            inputId = "num_respondents",
+            value = input$num_respondents_text
+        )
+    })
+    
+    # Tasks
+    observe({
+        updateTextInput(
+            session = session,
+            inputId = "num_tasks_text",
+            value = input$num_tasks
+        )
+    })
+    observe({
+        updateSliderInput(
+            session = session,
+            inputId = "num_tasks",
+            value = input$num_tasks_text
+        )
+    })
+    
+    # Coefficient
+    observe({
+        updateTextInput(
+            session = session,
+            inputId = "true_coef_text",
+            value = input$true_coef
+        )
+    })
+    observe({
+        updateSliderInput(
+            session = session,
+            inputId = "true_coef",
+            value = input$true_coef_text
+        )
+    })
+    
+    # Levels
+    observe({
+        updateTextInput(
+            session = session,
+            inputId = "num_lvls_text",
+            value = input$num_lvls
+        )
+    })
+    observe({
+        updateSliderInput(
+            session = session,
+            inputId = "num_lvls",
+            value = input$num_lvls_text
+        )
+    })
+    
+    ### Set up outputs
+    #output$summary <- renderText({
+    #    paste("You selected a conjoint design with", input$num_respondents, 
+    #          "respondents,", input$num_tasks, "trials,", 
+    #          input$num_lvls, "levels.", 
+    #          "Your expected effect size is", input$true_coef, ".")
+    #})
     
     pred_pwr <- reactive({
         c <- read.csv("glm_coefs.csv")
@@ -104,10 +205,11 @@ server <- function(input, output) {
     
     output$predpwr <- renderText({
         
-        paste("Predicted power is", pred_pwr())
+        paste0("Predicted statistical power for the specificed design is ", 
+              pred_pwr(), ".")
     })
     
-    output$heatplot <- renderPlot({ #plotly::renderPlotly({
+    output$heatplot <- renderPlot({
         c <- read.csv("glm_coefs.csv")
         new <- expand.grid(num_respondents = seq(500, 5000, 50),
                            num_tasks = seq(1, 20, 0.5),
@@ -135,9 +237,9 @@ server <- function(input, output) {
         
         plot_input <- data.frame(num_respondents = input$num_respondents,
                                  num_tasks = input$num_tasks,
-                                 pred_sig = 1)
-        #print(
-        #    plotly::ggplotly(
+                                 pred_sig = 1,
+                                 power = pred_pwr())
+        
         ggplot(new, aes(num_respondents, num_tasks, fill = pred_sig)) +
             geom_raster(interpolate = F) +
             coord_cartesian(expand = FALSE) +
@@ -154,10 +256,10 @@ server <- function(input, output) {
             theme_bw() +
             theme(
                 axis.text = element_text(size = 12),
-                #axis.title = element_text(size = 8),
+                axis.title = element_text(size = 14),
                 legend.position = "bottom",
                 legend.title = element_blank(),
-                #legend.text = element_text(size = 6)
+                legend.text = element_text(size = 12)
             ) +
             xlab("Respondents") + ylab("Tasks") +
             guides(fill = guide_colourbar(barwidth = 20,
@@ -176,12 +278,13 @@ server <- function(input, output) {
                          linetype = 2) +
             geom_point(data = plot_input, aes(num_respondents, num_tasks),
                        size = 3.5) +
-            annotate("text", x = (input$num_respondents + 100),
-                     y = (input$num_tasks + .5),
-                     label = paste(pred_pwr()))
-        #    )
-        #)
-    })
+            geom_text_repel(data = plot_input, aes(label = power),
+                            size = 5)
+    
+        
+    },
+    width = 550,
+    height = 450)
     
 }
 
