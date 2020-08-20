@@ -1,24 +1,28 @@
 #
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
+# This is a Shiny app for the project
+# Stefanelli, A. and Lukac, M.: Subjects, trials, attributes: statistical power
+# in conjoint experiments
 #
 
+# 0. Libraries ----------------------------------------------------------------
 library(shiny)
 library(ggplot2)
+library(shinythemes)
 
+# 1. Shiny App ----------------------------------------------------------------
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+    theme = shinytheme("yeti"),
 
     # Application title
     titlePanel("Conjoint Experiments: Statistical Power Analysis"),
 
+    
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
+            
+            
             sliderInput("num_respondents",
                         "Number of subjects:",
                         min = 1,
@@ -105,8 +109,8 @@ server <- function(input, output) {
     
     output$heatplot <- renderPlot({ #plotly::renderPlotly({
         c <- read.csv("glm_coefs.csv")
-        new <- expand.grid(num_respondents = seq(500, 5000, 10),
-                           num_tasks = seq(1, 20, 0.1),
+        new <- expand.grid(num_respondents = seq(500, 5000, 50),
+                           num_tasks = seq(1, 20, 0.5),
                            true_coef = input$true_coef, 
                            num_lvls = input$num_lvls)
         
