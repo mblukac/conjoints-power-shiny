@@ -1,13 +1,15 @@
 #
-# This is a Shiny app for the project
-# Stefanelli, A. and Lukac, M.: Subjects, trials, attributes: statistical power
-# in conjoint experiments
+# This is a Shiny app for the project:
+# Stefanelli, A. and Lukac, M.: Subjects, trials, attributes: 
+#   statistical power in conjoint experiments
 #
 
 # 0. Libraries ----------------------------------------------------------------
 library(shiny)
 library(ggplot2)
 library(shinythemes)
+library(shinyWidgets)
+library(shinydashboard)
 library(ggrepel)
 
 # 1. Shiny App ----------------------------------------------------------------
@@ -22,7 +24,6 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            
             fluidRow(
                 box(width = 12, title = "", 
                     splitLayout(
@@ -35,7 +36,8 @@ ui <- fluidPage(
                                     max = 5000,
                                     value = 2000,
                                     step = 100,
-                                    width = '90%')
+                                    width = '90%',
+                                    ticks = F)
                     )
                 )
             ),
@@ -51,7 +53,8 @@ ui <- fluidPage(
                                     min = 1,
                                     max = 20,
                                     value = 5,
-                                    width = "90%")
+                                    width = "90%",
+                                    ticks = F)
                     )
                 )
             ),
@@ -66,7 +69,10 @@ ui <- fluidPage(
                                     "",
                                     min = 0.01,
                                     max = 0.2,
-                                    value = 0.02)
+                                    value = 0.02,
+                                    step = 0.01,
+                                    width = "90%",
+                                    ticks = F)
                     )
                 )
             ),
@@ -81,10 +87,25 @@ ui <- fluidPage(
                                     "",
                                     min = 2,
                                     max = 30,
-                                    value = 4)
+                                    value = 4,
+                                    width = "90%",
+                                    ticks = F)
+                    )
+                )
+            ),
+            
+            fluidRow(
+                box(width = 12, title = "",
+                    splitLayout(
+                        cellWidths = c("50%", "50%"),
+                        actionButton("show_about", "About",
+                                     width = "150px"),
+                        actionButton("show_info", "Help",
+                                     width = "150px")
                     )
                 )
             )
+            
         ),
 
         # Show a plot of the generated distribution
@@ -104,6 +125,29 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+    
+    ### Action Buttons
+    # About
+    observeEvent(input$show_about, {
+        text_about <- "This is an online power calculator for 
+        conjoint experiments based on work of 
+        <a href=\"https://albertostefanelli.com\">Alberto Stefanelli</a> 
+        and 
+        <a href=\"https://mblukac.github.io\">Martin Lukac</a>."
+        showModal(modalDialog(HTML(text_about), title = 'About'))
+    })
+    
+    # Info
+    observeEvent(input$show_info, {
+        text_about <- "<b>Respondents:</b> Number of people you are going 
+        to recruit.<br><br>
+        <b>Tasks:</b> Number of tasks you are going to give them -- 
+        i.e. conjoint trials<br><br>
+        <b>Effect size:</b> The expected effect size in %<br><br>
+        <b>Variable levels:</b> Number of levels of your categorical 
+        variable -- i.e. gender (male vs. female) has two categories"
+        showModal(modalDialog(HTML(text_about), title = 'Help'))
+    })
 
     ### Connect text fields to sliders
     # Respondents
@@ -258,7 +302,8 @@ server <- function(input, output, session) {
                 axis.text = element_text(size = 12),
                 axis.title = element_text(size = 14),
                 legend.position = "bottom",
-                legend.title = element_blank(),
+                legend.title = element_text(size = 14, hjust = 1,
+                                            margin = margin(0, 15, 0, 0)),
                 legend.text = element_text(size = 12)
             ) +
             xlab("Respondents") + ylab("Tasks") +
@@ -268,6 +313,7 @@ server <- function(input, output, session) {
                                           frame.linewidth = 1,
                                           ticks.colour = "black",
                                           ticks.linewidth = 1)) + 
+            labs(fill = "Power") +
             geom_segment(aes(x = 500, y = input$num_tasks, 
                              xend = input$num_respondents, 
                              yend = input$num_tasks),
@@ -279,7 +325,9 @@ server <- function(input, output, session) {
             geom_point(data = plot_input, aes(num_respondents, num_tasks),
                        size = 3.5) +
             geom_text_repel(data = plot_input, aes(label = power),
-                            size = 5)
+                            size = 5, 
+                            box.padding = 0.5,
+                            min.segment.length = 1)
     
         
     },
