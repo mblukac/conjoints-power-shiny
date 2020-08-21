@@ -230,17 +230,25 @@ server <- function(input, output, session) {
             c[3, 1] * input$num_tasks + 
             c[4, 1] * input$true_coef + 
             c[5, 1] * input$num_lvls +
-            c[6, 1] * input$num_respondents * input$num_tasks +
-            c[7, 1] * input$num_respondents * input$true_coef +
-            c[8, 1] * input$num_respondents * input$num_lvls +
-            c[9, 1] * input$num_tasks *  input$true_coef +
-            c[10, 1] * input$num_tasks * input$num_lvls +
-            c[11, 1] * input$true_coef * input$num_lvls +
-            c[12, 1] * input$num_respondents * input$num_tasks * input$true_coef +
-            c[13, 1] * input$num_respondents * input$num_tasks * input$num_lvls +
-            c[14, 1] * input$num_respondents * input$true_coef * input$num_lvls +
-            c[15, 1] * input$num_tasks * input$true_coef * input$num_lvls +
-            c[16, 1] * input$num_respondents * input$num_tasks * input$true_coef * input$num_lvls
+            c[6, 1]  * input$num_respondents ^ 2 + 
+            c[7, 1]  * input$num_tasks ^ 2 +
+            c[8, 1]  * input$true_coef ^ 2 +
+            c[9, 1]  * input$num_lvls ^ 2 + 
+            c[10, 1] * input$num_respondents ^ 3 + 
+            c[11, 1] * input$num_tasks ^ 3 +
+            c[12, 1] * input$true_coef ^ 3 +
+            c[13, 1] * input$num_lvls ^ 3 +
+            c[14, 1] * input$num_respondents * input$num_tasks +
+            c[15, 1] * input$num_respondents * input$true_coef +
+            c[16, 1] * input$num_respondents * input$num_lvls +
+            c[17, 1] * input$num_tasks *  input$true_coef +
+            c[18, 1] * input$num_tasks * input$num_lvls +
+            c[19, 1] * input$true_coef * input$num_lvls +
+            c[20, 1] * input$num_respondents * input$num_tasks * input$true_coef +
+            c[21, 1] * input$num_respondents * input$num_tasks * input$num_lvls +
+            c[22, 1] * input$num_respondents * input$true_coef * input$num_lvls +
+            c[23, 1] * input$num_tasks * input$true_coef * input$num_lvls +
+            c[24, 1] * input$num_respondents * input$num_tasks * input$true_coef * input$num_lvls
         
         o_predicted_pwr <- exp(lo_predicted_pwr)
         
@@ -260,22 +268,37 @@ server <- function(input, output, session) {
                            true_coef = input$true_coef, 
                            num_lvls = input$num_lvls)
         
+        # Rewrite this part to predict values only within the bounds
+        # of the simulation experiment
+        #    - num_resp: 500-3000
+        #    - num_tasks: 1-9
+        # and change the plot accordingly
+        
         lo_predicted_pwr <- c[1, 1] + 
             c[2, 1] * new$num_respondents + 
             c[3, 1] * new$num_tasks + 
             c[4, 1] * new$true_coef + 
             c[5, 1] * new$num_lvls +
-            c[6, 1] * new$num_respondents * new$num_tasks +
-            c[7, 1] * new$num_respondents * new$true_coef +
-            c[8, 1] * new$num_respondents * new$num_lvls +
-            c[9, 1] * new$num_tasks *  new$true_coef +
-            c[10, 1] * new$num_tasks * new$num_lvls +
-            c[11, 1] * new$true_coef * new$num_lvls +
-            c[12, 1] * new$num_respondents * new$num_tasks * new$true_coef +
-            c[13, 1] * new$num_respondents * new$num_tasks * new$num_lvls +
-            c[14, 1] * new$num_respondents * new$true_coef * new$num_lvls +
-            c[15, 1] * new$num_tasks * new$true_coef * new$num_lvls +
-            c[16, 1] * new$num_respondents * new$num_tasks * new$true_coef * new$num_lvls
+            c[6, 1]  * new$num_respondents ^ 2 + 
+            c[7, 1]  * new$num_tasks ^ 2 +
+            c[8, 1]  * new$true_coef ^ 2 +
+            c[9, 1]  * new$num_lvls ^ 2 + 
+            c[10, 1] * new$num_respondents ^ 3 + 
+            c[11, 1] * new$num_tasks ^ 3 +
+            c[12, 1] * new$true_coef ^ 3 +
+            c[13, 1] * new$num_lvls ^ 3 +
+            c[14, 1] * new$num_respondents * new$num_tasks +
+            c[15, 1] * new$num_respondents * new$true_coef +
+            c[16, 1] * new$num_respondents * new$num_lvls +
+            c[17, 1] * new$num_tasks *  new$true_coef +
+            c[18, 1] * new$num_tasks * new$num_lvls +
+            c[19, 1] * new$true_coef * new$num_lvls +
+            c[20, 1] * new$num_respondents * new$num_tasks * new$true_coef +
+            c[21, 1] * new$num_respondents * new$num_tasks * new$num_lvls +
+            c[22, 1] * new$num_respondents * new$true_coef * new$num_lvls +
+            c[23, 1] * new$num_tasks * new$true_coef * new$num_lvls +
+            c[24, 1] * new$num_respondents * new$num_tasks * new$true_coef * new$num_lvls
+        
         o_predicted_pwr <- exp(lo_predicted_pwr)
         new$pred_sig <- o_predicted_pwr / (1 + o_predicted_pwr)
         
