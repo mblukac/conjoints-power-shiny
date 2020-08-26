@@ -29,12 +29,12 @@ ui <- fluidPage(
                     splitLayout(
                         cellWidths = c("25%", "75%"),
                         textInput("num_respondents_text", "Respondents",
-                                  value = "2000"),
+                                  value = "1000"),
                         sliderInput("num_respondents",
                                     "",
                                     min = 500,
-                                    max = 5000,
-                                    value = 2000,
+                                    max = 3000,
+                                    value = 1000,
                                     step = 100,
                                     width = '90%',
                                     ticks = F)
@@ -47,12 +47,12 @@ ui <- fluidPage(
                     splitLayout(
                         cellWidths = c("25%", "75%"),
                         textInput("num_tasks_text", "Tasks",
-                                  value = "5"),
+                                  value = "3"),
                         sliderInput("num_tasks",
                                     "",
                                     min = 1,
-                                    max = 20,
-                                    value = 5,
+                                    max = 9,
+                                    value = 3,
                                     width = "90%",
                                     ticks = F)
                     )
@@ -64,12 +64,12 @@ ui <- fluidPage(
                     splitLayout(
                         cellWidths = c("25%", "75%"),
                         textInput("true_coef_text", "Effect size (%)",
-                                  value = "0.02"),
+                                  value = "0.05"),
                         sliderInput("true_coef",
                                     "",
                                     min = 0.01,
                                     max = 0.2,
-                                    value = 0.02,
+                                    value = 0.05,
                                     step = 0.01,
                                     width = "90%",
                                     ticks = F)
@@ -82,12 +82,12 @@ ui <- fluidPage(
                     splitLayout(
                         cellWidths = c("25%", "75%"),
                         textInput("num_lvls_text", "Variable levels",
-                                  value = "4"),
+                                  value = "5"),
                         sliderInput("num_lvls",
                                     "",
                                     min = 2,
                                     max = 30,
-                                    value = 4,
+                                    value = 5,
                                     width = "90%",
                                     ticks = F)
                     )
@@ -226,29 +226,33 @@ server <- function(input, output, session) {
         c <- read.csv("glm_coefs.csv")
         
         lo_predicted_pwr <- c[1, 1] + 
-            c[2, 1] * input$num_respondents + 
-            c[3, 1] * input$num_tasks + 
-            c[4, 1] * input$true_coef + 
-            c[5, 1] * input$num_lvls +
-            c[6, 1]  * input$num_respondents ^ 2 + 
-            c[7, 1]  * input$num_tasks ^ 2 +
-            c[8, 1]  * input$true_coef ^ 2 +
-            c[9, 1]  * input$num_lvls ^ 2 + 
-            c[10, 1] * input$num_respondents ^ 3 + 
-            c[11, 1] * input$num_tasks ^ 3 +
-            c[12, 1] * input$true_coef ^ 3 +
-            c[13, 1] * input$num_lvls ^ 3 +
-            c[14, 1] * input$num_respondents * input$num_tasks +
-            c[15, 1] * input$num_respondents * input$true_coef +
-            c[16, 1] * input$num_respondents * input$num_lvls +
-            c[17, 1] * input$num_tasks *  input$true_coef +
-            c[18, 1] * input$num_tasks * input$num_lvls +
-            c[19, 1] * input$true_coef * input$num_lvls +
-            c[20, 1] * input$num_respondents * input$num_tasks * input$true_coef +
-            c[21, 1] * input$num_respondents * input$num_tasks * input$num_lvls +
-            c[22, 1] * input$num_respondents * input$true_coef * input$num_lvls +
-            c[23, 1] * input$num_tasks * input$true_coef * input$num_lvls +
-            c[24, 1] * input$num_respondents * input$num_tasks * input$true_coef * input$num_lvls
+            c[2, 1]  * log(input$num_respondents) + 
+            c[3, 1]  * log(input$num_tasks) + 
+            c[4, 1]  * log(input$true_coef) + 
+            c[5, 1]  * log(input$num_lvls) +
+            c[6, 1]  * I(log(input$num_respondents) ^ 2) + 
+            c[7, 1]  * I(log(input$num_tasks) ^ 2) + 
+            c[8, 1]  * I(log(input$true_coef) ^ 2) + 
+            c[9, 1]  * I(log(input$num_lvls) ^ 2) +
+            c[10, 1] * I(log(input$num_respondents) ^ 3) + 
+            c[11, 1] * I(log(input$num_tasks) ^ 3) + 
+            c[12, 1] * I(log(input$true_coef) ^ 3) + 
+            c[13, 1] * I(log(input$num_lvls) ^ 3) +
+            c[14, 1] * I(log(input$num_respondents) ^ 4) + 
+            c[15, 1] * I(log(input$num_tasks) ^ 4) + 
+            c[16, 1] * I(log(input$true_coef) ^ 4) + 
+            c[17, 1] * I(log(input$num_lvls) ^ 4) +
+            c[18, 1] * log(input$num_respondents) * log(input$num_tasks) +
+            c[19, 1] * log(input$num_respondents) * log(input$true_coef) +
+            c[20, 1] * log(input$num_respondents) * log(input$num_lvls) +
+            c[21, 1] * log(input$num_tasks) * log(input$true_coef) +
+            c[22, 1] * log(input$num_tasks) * log(input$num_lvls) +
+            c[23, 1] * log(input$true_coef) * log(input$num_lvls) +
+            c[24, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$true_coef) +
+            c[25, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$num_lvls) +
+            c[26, 1] * log(input$num_respondents) * log(input$true_coef) * log(input$num_lvls) +
+            c[27, 1] * log(input$num_tasks) * log(input$true_coef) * log(input$num_lvls) +
+            c[28, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$true_coef) * log(input$num_lvls)
         
         o_predicted_pwr <- exp(lo_predicted_pwr)
         
@@ -263,8 +267,8 @@ server <- function(input, output, session) {
     
     output$heatplot <- renderPlot({
         c <- read.csv("glm_coefs.csv")
-        new <- expand.grid(num_respondents = seq(500, 5000, 50),
-                           num_tasks = seq(1, 20, 0.5),
+        new <- expand.grid(num_respondents = seq(500, 3000, 25),
+                           num_tasks = seq(1, 9, 0.25),
                            true_coef = input$true_coef, 
                            num_lvls = input$num_lvls)
         
@@ -275,32 +279,36 @@ server <- function(input, output, session) {
         # and change the plot accordingly
         
         lo_predicted_pwr <- c[1, 1] + 
-            c[2, 1] * new$num_respondents + 
-            c[3, 1] * new$num_tasks + 
-            c[4, 1] * new$true_coef + 
-            c[5, 1] * new$num_lvls +
-            c[6, 1]  * new$num_respondents ^ 2 + 
-            c[7, 1]  * new$num_tasks ^ 2 +
-            c[8, 1]  * new$true_coef ^ 2 +
-            c[9, 1]  * new$num_lvls ^ 2 + 
-            c[10, 1] * new$num_respondents ^ 3 + 
-            c[11, 1] * new$num_tasks ^ 3 +
-            c[12, 1] * new$true_coef ^ 3 +
-            c[13, 1] * new$num_lvls ^ 3 +
-            c[14, 1] * new$num_respondents * new$num_tasks +
-            c[15, 1] * new$num_respondents * new$true_coef +
-            c[16, 1] * new$num_respondents * new$num_lvls +
-            c[17, 1] * new$num_tasks *  new$true_coef +
-            c[18, 1] * new$num_tasks * new$num_lvls +
-            c[19, 1] * new$true_coef * new$num_lvls +
-            c[20, 1] * new$num_respondents * new$num_tasks * new$true_coef +
-            c[21, 1] * new$num_respondents * new$num_tasks * new$num_lvls +
-            c[22, 1] * new$num_respondents * new$true_coef * new$num_lvls +
-            c[23, 1] * new$num_tasks * new$true_coef * new$num_lvls +
-            c[24, 1] * new$num_respondents * new$num_tasks * new$true_coef * new$num_lvls
+            c[2, 1]  * log(new$num_respondents) + 
+            c[3, 1]  * log(new$num_tasks) + 
+            c[4, 1]  * log(new$true_coef) + 
+            c[5, 1]  * log(new$num_lvls) +
+            c[6, 1]  * I(log(new$num_respondents) ^ 2) + 
+            c[7, 1]  * I(log(new$num_tasks) ^ 2) + 
+            c[8, 1]  * I(log(new$true_coef) ^ 2) + 
+            c[9, 1]  * I(log(new$num_lvls) ^ 2) +
+            c[10, 1] * I(log(new$num_respondents) ^ 3) + 
+            c[11, 1] * I(log(new$num_tasks) ^ 3) + 
+            c[12, 1] * I(log(new$true_coef) ^ 3) + 
+            c[13, 1] * I(log(new$num_lvls) ^ 3) +
+            c[14, 1] * I(log(new$num_respondents) ^ 4) + 
+            c[15, 1] * I(log(new$num_tasks) ^ 4) + 
+            c[16, 1] * I(log(new$true_coef) ^ 4) + 
+            c[17, 1] * I(log(new$num_lvls) ^ 4) +
+            c[18, 1] * log(new$num_respondents) * log(new$num_tasks) +
+            c[19, 1] * log(new$num_respondents) * log(new$true_coef) +
+            c[20, 1] * log(new$num_respondents) * log(new$num_lvls) +
+            c[21, 1] * log(new$num_tasks) * log(new$true_coef) +
+            c[22, 1] * log(new$num_tasks) * log(new$num_lvls) +
+            c[23, 1] * log(new$true_coef) * log(new$num_lvls) +
+            c[24, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) +
+            c[25, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$num_lvls) +
+            c[26, 1] * log(new$num_respondents) * log(new$true_coef) * log(new$num_lvls) +
+            c[27, 1] * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls) +
+            c[28, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls)
         
         o_predicted_pwr <- exp(lo_predicted_pwr)
-        new$pred_sig <- o_predicted_pwr / (1 + o_predicted_pwr)
+        new$pred_sig <- as.double(o_predicted_pwr / (1 + o_predicted_pwr))
         
         plot_input <- data.frame(num_respondents = input$num_respondents,
                                  num_tasks = input$num_tasks,
@@ -308,10 +316,11 @@ server <- function(input, output, session) {
                                  power = pred_pwr())
         
         ggplot(new, aes(num_respondents, num_tasks, fill = pred_sig)) +
-            geom_raster(interpolate = F) +
+            geom_raster(interpolate = T) +
             coord_cartesian(expand = FALSE) +
-            scale_x_continuous(breaks = c(1000, 2000, 3000, 4000, 5000),
-                               labels = c("1k", "2k", "3k", "4k", "5k")) +
+            scale_x_continuous(breaks = c(1000, 2000, 3000),
+                               labels = c("1k", "2k", "3k")) +
+            scale_y_continuous(breaks = c(1, 3, 5, 7, 9)) +
             scale_fill_gradient2(
                 breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
                 labels = c("0%", "20%", "40%", "60%", "80%", "100%"),
@@ -336,7 +345,13 @@ server <- function(input, output, session) {
                                           frame.linewidth = 1,
                                           ticks.colour = "black",
                                           ticks.linewidth = 1)) + 
-            labs(fill = "Power") +
+            labs(fill = "Power",
+                 caption = paste0("Conjoint design: ", 
+                                  input$num_respondents, " respondents, ",
+                                  input$num_tasks, " tasks, ",
+                                  "assumed effect size ", input$true_coef,
+                                  "%, on a variable with ", input$num_lvls,
+                                  " levels.")) +
             geom_segment(aes(x = 500, y = input$num_tasks, 
                              xend = input$num_respondents, 
                              yend = input$num_tasks),
