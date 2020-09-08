@@ -15,8 +15,8 @@ library(ggrepel)
 # 1. Shiny App ----------------------------------------------------------------
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-    theme = shinytheme("yeti"),
-
+    #theme = shinytheme("yeti"),
+    theme = shinytheme("cerulean"),
     # Application title
     titlePanel("Conjoint experiments: Power Analysis"),
 
