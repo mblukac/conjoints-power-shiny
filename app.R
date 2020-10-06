@@ -13,14 +13,12 @@ library(shinydashboard)
 library(ggrepel)
 
 # 1. Shiny App ----------------------------------------------------------------
-# Define UI for application that draws a histogram
 ui <- fluidPage(
     #theme = shinytheme("yeti"),
     theme = shinytheme("cerulean"),
     # Application title
-    titlePanel("Conjoint experiments: Power Analysis"),
+    titlePanel("Conjoint experiments: Power Analysis Tool"),
 
-    
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
@@ -133,19 +131,31 @@ server <- function(input, output, session) {
         conjoint experiments based on work of 
         <a href=\"https://albertostefanelli.com\">Alberto Stefanelli</a> 
         and 
-        <a href=\"https://mblukac.github.io\">Martin Lukac</a>."
+        <a href=\"https://mblukac.github.io\">Martin Lukac</a>. A paper 
+        with full methodological detail will be published soon. Until then,
+        please feel free to get in touch for methodological inquiries.<br><br>
+        Cite as Lukac, M. & Stefanelli, A. (2020). Conjoint experiments:
+        Power Analysis Tool. Retrieved from 
+        https://mblukac.shinyapps.io/conjoints-power-shiny/
+        <br><br><hr><br>
+        Copyright (c) 2020 Martin Lukac and Alberto Stefanelli
+        <br>
+        This work is distributed under MIT Licence. See the file 
+        <a href=\"https://github.com/mblukac/conjoints-power-shiny/LICENSE.txt\">
+        LICENSE.txt</a> for details."
         showModal(modalDialog(HTML(text_about), title = 'About'))
     })
     
     # Info
     observeEvent(input$show_info, {
-        text_about <- "<b>Respondents:</b> Number of people you are going 
-        to recruit.<br><br>
-        <b>Tasks:</b> Number of tasks you are going to give them -- 
-        i.e. conjoint trials<br><br>
-        <b>Effect size:</b> The expected effect size in %<br><br>
+        text_about <- "<b>Respondents:</b> Number of respondents that are going
+        to answer the survey.<br><br>
+        <b>Tasks:</b> Number of tasks each respondent will receive (sometimes called
+        trials or selection tasks).<br><br>
+        <b>Effect size:</b> The expected effect size in %. This is the expected 
+        Average Marginal Component Effect (see <a href=\"https://doi.org/10.1093/pan/mpt024\">Hainmueller et al. 2014</a>)<br><br>
         <b>Variable levels:</b> Number of levels of your categorical 
-        variable -- i.e. gender (male vs. female) has two categories"
+        variable — i.e. gender (male vs. female) has two categories"
         showModal(modalDialog(HTML(text_about), title = 'Help'))
     })
 
@@ -214,14 +224,6 @@ server <- function(input, output, session) {
         )
     })
     
-    ### Set up outputs
-    #output$summary <- renderText({
-    #    paste("You selected a conjoint design with", input$num_respondents, 
-    #          "respondents,", input$num_tasks, "trials,", 
-    #          input$num_lvls, "levels.", 
-    #          "Your expected effect size is", input$true_coef, ".")
-    #})
-    
     pred_pwr <- reactive({
         c <- read.csv("glm_coefs.csv")
         
@@ -271,12 +273,6 @@ server <- function(input, output, session) {
                            num_tasks = seq(1, 9, 0.25),
                            true_coef = input$true_coef, 
                            num_lvls = input$num_lvls)
-        
-        # Rewrite this part to predict values only within the bounds
-        # of the simulation experiment
-        #    - num_resp: 500-3000
-        #    - num_tasks: 1-9
-        # and change the plot accordingly
         
         lo_predicted_pwr <- c[1, 1] + 
             c[2, 1]  * log(new$num_respondents) + 
@@ -366,7 +362,6 @@ server <- function(input, output, session) {
                             size = 5, 
                             box.padding = 0.5,
                             min.segment.length = 1)
-    
         
     },
     width = 550,
