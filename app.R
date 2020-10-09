@@ -155,7 +155,9 @@ server <- function(input, output, session) {
         <b>Effect size:</b> The expected effect size in %. This is the expected 
         Average Marginal Component Effect (see <a href=\"https://doi.org/10.1093/pan/mpt024\">Hainmueller et al. 2014</a>)<br><br>
         <b>Variable levels:</b> Number of levels of your categorical 
-        variable — i.e. gender (male vs. female) has two categories"
+        variable — i.e. gender (male vs. female) has two categories. 
+        Use the number of levels of the attribute with the highest number of levels
+        to obtain a power of the experimental design as a whole (lowest threashold)."
         showModal(modalDialog(HTML(text_about), title = 'Help'))
     })
 
