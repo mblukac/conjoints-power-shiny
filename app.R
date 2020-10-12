@@ -113,6 +113,8 @@ ui <- fluidPage(
             
             textOutput("predpwr"),
             
+            textOutput("predtypes"),
+            
             br(),
             
             plotOutput("heatplot")
@@ -263,6 +265,57 @@ server <- function(input, output, session) {
         
         paste0(round(o_predicted_pwr / (1 + o_predicted_pwr), 2) * 100, "%")
     })
+
+    # Calculate type S error 
+    #input <- c() 
+    #input$num_respondents <- 1000
+    #input$num_tasks <-3 
+    #input$true_coef <- 0.03
+    #input$num_lvls <- 4
+    
+    pred_type_s <- reactive({
+        c <- read.csv("glm_coefs_type_s.csv")
+        
+        lo_predicted_type_s <- c[1, 1] + 
+            c[2, 1]  * log(input$num_respondents) + 
+            c[3, 1]  * log(input$num_tasks) + 
+            c[4, 1]  * log(input$true_coef) + 
+            c[5, 1]  * log(input$num_lvls) +
+            c[6, 1]  * I(log(input$num_respondents) ^ 2) + 
+            c[7, 1]  * I(log(input$num_tasks) ^ 2) + 
+            c[8, 1]  * I(log(input$true_coef) ^ 2) + 
+            c[9, 1]  * I(log(input$num_lvls) ^ 2) +
+            c[10, 1] * I(log(input$num_respondents) ^ 3) + 
+            c[11, 1] * I(log(input$num_tasks) ^ 3) + 
+            c[12, 1] * I(log(input$true_coef) ^ 3) + 
+            c[13, 1] * I(log(input$num_lvls) ^ 3) +
+            c[14, 1] * I(log(input$num_respondents) ^ 4) + 
+            c[15, 1] * I(log(input$num_tasks) ^ 4) + 
+            c[16, 1] * I(log(input$true_coef) ^ 4) + 
+            c[17, 1] * I(log(input$num_lvls) ^ 4) +
+            c[18, 1] * log(input$num_respondents) * log(input$num_tasks) +
+            c[19, 1] * log(input$num_respondents) * log(input$true_coef) +
+            c[20, 1] * log(input$num_respondents) * log(input$num_lvls) +
+            c[21, 1] * log(input$num_tasks) * log(input$true_coef) +
+            c[22, 1] * log(input$num_tasks) * log(input$num_lvls) +
+            c[23, 1] * log(input$true_coef) * log(input$num_lvls) +
+            c[24, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$true_coef) +
+            c[25, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$num_lvls) +
+            c[26, 1] * log(input$num_respondents) * log(input$true_coef) * log(input$num_lvls) +
+            c[27, 1] * log(input$num_tasks) * log(input$true_coef) * log(input$num_lvls) +
+            c[28, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$true_coef) * log(input$num_lvls)
+        
+        o_predicted_type_s <- exp(lo_predicted_type_s)
+        
+        paste0(round(o_predicted_type_s / (1 + o_predicted_type_s) * 100,2), "%")
+    })
+    
+    output$predtypes <- renderText({
+
+        paste0("The probability that the replicated estimate has the incorrect sign (Type S error) is ", 
+               pred_type_s(), ".")
+    })
+    
     
     output$predpwr <- renderText({
         
