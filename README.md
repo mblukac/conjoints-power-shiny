@@ -6,11 +6,12 @@ Are you running a conjoint experiment and struggling with design considerations?
 We are currently working on a paper that would offer more in-depth explanation. You can find some of the results of our work and descriptions in this [short Twitter thread](https://twitter.com/mblukac/status/1314220796529655809). A full research paper will follow shortly!
 
 ## How to use the App?
-&nbsp;&nbsp;&nbsp;![](CE-PAT-tutorial.png){width=75%}
+&nbsp;&nbsp;&nbsp;<img src="CE-PAT-tutorial.png" width="90%">
+
 
 ## Setup
 
-The Shiny app calculates power of a simple conjoint experiment design based on the [Heinmueller et al (2014)](https://doi.org/10.1093/pan/mpt024) framework. At the present stage, it has four inputs:
+The Shiny app calculates power of a simple conjoint experiment design based on the [Hainmueller et al (2014)](https://doi.org/10.1093/pan/mpt024) framework. At the present stage, it has four inputs:
 
   * __Respondents__: Number of respondents that are going to answer the survey.
   * __Tasks__: Number of tasks each respondent will receive (sometimes called trials or selection tasks).
@@ -45,7 +46,9 @@ https://github.com/mblukac/conjoints-power-shiny.git
 
 Open RStudio and follow these steps. In the last window, paste the copied URL ☝️ to `Repository URL`.
 
-&nbsp;&nbsp;&nbsp;![](CE-PAT-clone.png){width=75%}
+&nbsp;&nbsp;&nbsp;<img src="CE-PAT-clone.png" width="90%">
+
+
 
 When you hit `Create Project`, RStudio will connect to GitHub and get the newest version of the App to your local computer.
 
