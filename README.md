@@ -74,13 +74,16 @@ This will run the application locally on your computer. You can always re-run `r
 Listening on http://127.0.0.1:xxxx
 ```
 
-Copy and paste the `http://127.0.0.1:xxxx` to your browser. This should open the App for you.
+The last part (`:xxxx`) will be specific to your instance. Copy and paste the whole link `http://127.0.0.1:xxxx` to your browser. This should open the App for you. Enjoy!
 
 --------
 
-Enjoy and please don't forget to let us know what you liked or disliked and to cite our work in your papers:
+## Cite
+
+We put a lot of work into this, so please don't forget to cite our work if you use it.
 
 ```{r}
 Lukac, M. & Stefanelli, A. (2020). Conjoint Experiments: Power Analysis Tool. Retrieved from https://mblukac.shinyapps.io/conjoints-power-shiny/
 ```
 
+I cannot stress this enough, 🔥please🔥 get in touch with your feedback or questions. It will be **immensely** helpful for us to hear what the community thinks about this, so that we can all develop something useful for everyone.
