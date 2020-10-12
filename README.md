@@ -1,7 +1,7 @@
 # Conjoint Experiments: Power Analysis Tool
 
 
-Are you running a conjoint experiment and struggling with design considerations? Unsure about how many respondents, trials or levels for a variable are needed? This Shiny App for calculating power of a conjoint experimental design is here to help you. You can find the Shiny App [here](https://mblukac.shinyapps.io/conjoints-power-shiny/)
+Are you running a conjoint experiment and struggling with design considerations? Unsure about how many respondents, trials or levels for a variable are needed? This [Shiny App](https://mblukac.shinyapps.io/conjoints-power-shiny/) for calculating power of a conjoint experimental design is here to help you.
 
 We are currently working on a paper that would offer more in-depth explanation. You can find some of the results of our work and descriptions in this [short Twitter thread](https://twitter.com/mblukac/status/1314220796529655809). A full research paper will follow shortly!
 
