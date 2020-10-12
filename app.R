@@ -1,8 +1,10 @@
-#
-# This is a Shiny app for the project:
-# Stefanelli, A. and Lukac, M.: Subjects, trials, attributes: 
-#   statistical power in conjoint experiments
-#
+###############################################################################
+# Source code for
+# Conjoint Experiments: Power Analysis Tool (Shiny App)
+# 
+# Authors: Martin Lukac (mblukac) and Alberto Stefanelli (albertostefanelli)
+# Date: 12 October 2020
+###############################################################################
 
 # 0. Libraries ----------------------------------------------------------------
 library(shiny)
@@ -13,13 +15,14 @@ library(shinydashboard)
 library(ggrepel)
 
 # 1. Shiny App ----------------------------------------------------------------
+
+# 1.A User Interface ----------------------------------------------------------
 ui <- fluidPage(
-    #theme = shinytheme("yeti"),
+    
     theme = shinytheme("cerulean"),
-    # Application title
+    
     titlePanel("Conjoint Experiments: Power Analysis Tool"),
 
-    # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
             fluidRow(
@@ -106,25 +109,22 @@ ui <- fluidPage(
             
         ),
 
-        # Show a plot of the generated distribution
         mainPanel(
-           
-            #textOutput("summary"),
             
             textOutput("predpwr"),
             
             br(),
             
-            #plotly::plotlyOutput("heatplot")
             plotOutput("heatplot")
         )
     )
 )
 
-# Define server logic required to draw a histogram
+# 1.B Server ------------------------------------------------------------------
+
 server <- function(input, output, session) {
     
-    ### Action Buttons
+    ## Action Buttons
     # About
     observeEvent(input$show_about, {
         text_about <- "This is an online power calculator for 
@@ -146,7 +146,7 @@ server <- function(input, output, session) {
         showModal(modalDialog(HTML(text_about), title = 'About'))
     })
     
-    # Info
+    # Help
     observeEvent(input$show_info, {
         text_about <- "<b>Respondents:</b> Number of respondents that are going
         to answer the survey.<br><br>
@@ -161,7 +161,7 @@ server <- function(input, output, session) {
         showModal(modalDialog(HTML(text_about), title = 'Help'))
     })
 
-    ### Connect text fields to sliders
+    ## Connect text fields to sliders
     # Respondents
     observe({
         updateTextInput(
@@ -226,6 +226,7 @@ server <- function(input, output, session) {
         )
     })
     
+    # Calculate predicted power
     pred_pwr <- reactive({
         c <- read.csv("glm_coefs.csv")
         
