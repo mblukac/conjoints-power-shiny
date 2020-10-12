@@ -142,7 +142,9 @@ server <- function(input, output, session) {
         <br>
         This work is distributed under MIT Licence. See the file 
         <a href=\"https://github.com/mblukac/conjoints-power-shiny/LICENSE.txt\">
-        LICENSE.txt</a> for details."
+        LICENSE.txt</a> for details.
+        <br><br>
+        Source code available <a href=\"https://github.com/mblukac/conjoints-power-shiny\">here</a>."
         showModal(modalDialog(HTML(text_about), title = 'About'))
     })
     
