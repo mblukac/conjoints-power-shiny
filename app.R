@@ -17,7 +17,7 @@ ui <- fluidPage(
     #theme = shinytheme("yeti"),
     theme = shinytheme("cerulean"),
     # Application title
-    titlePanel("Conjoint experiments: Power Analysis Tool"),
+    titlePanel("Conjoint Experiments: Power Analysis Tool"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
@@ -134,7 +134,7 @@ server <- function(input, output, session) {
         <a href=\"https://mblukac.github.io\">Martin Lukac</a>. A paper 
         with full methodological detail will be published soon. Until then,
         please feel free to get in touch for methodological inquiries.<br><br>
-        Cite as Lukac, M. & Stefanelli, A. (2020). Conjoint experiments:
+        Cite as Lukac, M. & Stefanelli, A. (2020). Conjoint Experiments:
         Power Analysis Tool. Retrieved from 
         https://mblukac.shinyapps.io/conjoints-power-shiny/
         <br><br><hr><br>
@@ -348,7 +348,7 @@ server <- function(input, output, session) {
                                   input$num_respondents, " respondents, ",
                                   input$num_tasks, " tasks, ",
                                   "assumed effect size ", input$true_coef,
-                                  "%, on a variable with ", input$num_lvls,
+                                  ", on a variable with ", input$num_lvls,
                                   " levels.")) +
             geom_segment(aes(x = 500, y = input$num_tasks, 
                              xend = input$num_respondents, 
