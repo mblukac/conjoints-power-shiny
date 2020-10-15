@@ -1,7 +1,7 @@
 # Conjoint Experiments: Power Analysis Tool
 
 
-Are you running a conjoint experiment and struggling with design considerations? Unsure about how many respondents, trials or levels for a variable are needed? This Shiny App for calculating power of a conjoint experimental design is here to help you.
+Are you running a conjoint experiment and struggling with design considerations? Unsure about how many respondents, trials or levels for a variable are needed? This [Shiny App](https://mblukac.shinyapps.io/conjoints-power-shiny/) for calculating power of a conjoint experimental design is here to help you.
 
 We are currently working on a paper that would offer more in-depth explanation. You can find some of the results of our work and descriptions in this [short Twitter thread](https://twitter.com/mblukac/status/1314220796529655809). A full research paper will follow shortly!
 
@@ -15,7 +15,7 @@ The Shiny app calculates power of a simple conjoint experiment design based on t
 
   * __Respondents__: Number of respondents that are going to answer the survey.
   * __Tasks__: Number of tasks each respondent will receive (sometimes called trials or selection tasks).
-  * __Effect size__:  The expected effect size in %. This is the expected Average Marginal Component Effect (see <a href=\"https://doi.org/10.1093/pan/mpt024\">Hainmueller et al. 2014</a>)
+  * __Effect size__:  The expected effect size in %. This is the expected Average Marginal Component Effect (see [Hainmueller et al. (2014)](https://doi.org/10.1093/pan/mpt024)
   * __Variable levels__: Number of levels of your categorical variable — i.e. gender (male vs. female) has two categories. Use the number of levels of the attribute with the highest number of levels to obtain a power of the experimental design as a whole (lowest threashold).
 
 In the next iterations, we will add also Type M and S error rates (see [Gelman and Carlin 2014](http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf)). We would also like to add more features, such as calculating power of an interaction between attributes and subgroup analysis.
