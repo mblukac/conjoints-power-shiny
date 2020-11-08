@@ -328,7 +328,7 @@ server <- function(input, output, session) {
         
         o_predicted_type_s <- exp(lo_predicted_type_s)
         
-        paste0(round(o_predicted_type_s / (1 + o_predicted_type_s) * 100,2), "%")
+        paste0(round((o_predicted_type_s / (1 + o_predicted_type_s))*100,2),"%")
     })
     
     output$predtypes <- renderText({
@@ -372,13 +372,12 @@ server <- function(input, output, session) {
         
         o_predicted_type_m <- exp(lo_predicted_type_m)
         
-        round(exp(o_predicted_type_m / (1 + o_predicted_type_m)),2)
     })
     
     output$predtypem <- renderText({
         
-        paste0("The exeggeration ratio (Type M error) is ", 
-               pred_typeM(), ".")
+        paste0("The exeggeration ratio (Type M error) is ", round(
+               pred_typeM(),2), ".")
     })
     
 
@@ -486,7 +485,6 @@ server <- function(input, output, session) {
     
     output$heatplot_type_S <- renderPlot({
        
-
         c <- read.csv("glm_coefs_typeS.csv")
        
          new <- expand.grid(num_respondents = seq(500, 3000, 25),
@@ -524,9 +522,9 @@ server <- function(input, output, session) {
             c[28, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls)
         
         o_predicted_type_s <- exp(lo_predicted_type_s)
-        new$pred_sig <- as.double(o_predicted_type_s / (1 + o_predicted_type_s))
-        
-        plot_input <- data.frame(num_respondents = input$num_respondents,
+        new$pred_sig <- as.double(round((o_predicted_type_s / (1 + o_predicted_type_s))*100,2))
+
+       plot_input <- data.frame(num_respondents = input$num_respondents,
                                  num_tasks = input$num_tasks,
                                  pred_sig = 1,
                                  type_s = pred_typeS())
@@ -538,12 +536,12 @@ server <- function(input, output, session) {
                                labels = c("1k", "2k", "3k")) +
             scale_y_continuous(breaks = c(1, 3, 5, 7, 9)) +
             scale_fill_gradient2(
-                breaks = c(0, 0.02, 0.04, 0.06, 0.08,
-                           0.10, 0.12, 0.14, 0.16, 0.18,
-                           0.20, 0.22),
+                breaks = c(0,5,10,15,20,25,30,35),
+                labels = c("0%", "5%", "10%", "15%", "20%", "25%", "30%", "35%"),
+                midpoint = (0),
                 high = "#E16462FF",
                 low = "#0D0887FF",
-                limit = c(0, 0.22)
+                limit = c(0, 35)
             ) +
             theme_bw() +
             theme(
@@ -593,12 +591,13 @@ server <- function(input, output, session) {
 output$lineplot_type_M <- renderPlot({
     
      #input <- c()
-     #input$num_respondents <- 1000
-     #input$num_tasks <- 3
-     #input$true_coef <- 0.03
-     #input$num_lvls <- 4
+     #input$num_respondents <- 3000
+     #input$num_tasks <- 9
+     #input$true_coef <- 0.20
+     #input$num_lvls <- 1
     
     c <- read.csv("glm_coefs_typeM.csv")
+    
     new <- expand.grid(num_respondents = seq(500, 3000, 25),
                        num_tasks = seq(1, 9, 0.25),
                        true_coef = input$true_coef, 
@@ -635,15 +634,16 @@ output$lineplot_type_M <- renderPlot({
         c[28, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls)
     
     
-    o_predicted_type_m <- exp(lo_predicted_type_m)
-    
-    new$pred_sig <- exp(as.double(o_predicted_type_m / (1 + o_predicted_type_m)))
-    min(new$pred_sig)
+    o_predicted_type_m <- round(exp(lo_predicted_type_m),2)
+
+    new$pred_sig <- as.double(o_predicted_type_m)
+
     plot_input <- data.frame(num_respondents = input$num_respondents,
                              num_tasks = input$num_tasks,
                              pred_sig = 1,
-                             type_m = pred_typeM())
+                             type_m = round(pred_typeM(),2))
     
+
     ggplot(new, aes(num_respondents, num_tasks, fill = pred_sig)) +
         geom_raster(interpolate = T) +
         coord_cartesian(expand = FALSE) +
@@ -651,12 +651,12 @@ output$lineplot_type_M <- renderPlot({
                            labels = c("1k", "2k", "3k")) +
         scale_y_continuous(breaks = c(1, 3, 5, 7, 9)) +
         scale_fill_gradient2(
-            breaks = c(1.5,2,2.5,3),
+            breaks = c(0, 10 ,20 ,30 ,40),
             #labels = c("0%", "20%", "40%", "60%", "80%", "100%"),
-            limits = c(1.5, 3),
-            midpoint = 2,
-            high = "#0D0887FF",   # or  scales::muted("darkblue")
-            low = "#E16462FF"     # and scales::muted("red")
+            limits = c(0, 40),
+            midpoint = 0.5,
+            high = "#E16462FF",
+            low = "#0D0887FF"
         ) +
         theme_bw() +
         theme(
