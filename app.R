@@ -111,13 +111,16 @@ ui <- fluidPage(
 
         mainPanel(
             tabsetPanel(type = "tabs",
-                        
                         tabPanel("Statistical Power",
                                  textOutput("predpwr"),
                                  br(),
-                                 plotOutput("heatplot")),
-                        tabPanel("Type S error", textOutput("predtypes"),plotOutput("heatplot_type_S")),
-                        tabPanel("Type M error", textOutput("predtypem"), plotOutput("lineplot_type_M"))
+                                 plotOutput("heatplot_pwr")),
+                        tabPanel("Type S error", textOutput("predtypes"),
+                                 br(),
+                                 plotOutput("heatplot_type_S")),
+                        tabPanel("Type M error", textOutput("predtypem"), 
+                                 br(),
+                                 plotOutput("lineplot_type_M"))
             )    
             
         )
@@ -210,7 +213,8 @@ server <- function(input, output, session) {
         )
     })
     
-    # Coefficient
+    # Coefficient (hypothesized effect)
+
     observe({
         updateTextInput(
             session = session,
@@ -286,14 +290,7 @@ server <- function(input, output, session) {
                pred_pwr(), ".")
     })
     
-
-    # Calculate type S error 
-    #input <- c() 
-    #input$num_respondents <- 1000
-    #input$num_tasks <-3 
-    #input$true_coef <- 0.03
-    #input$num_lvls <- 4
-    
+    # Calculate typeS error rate
     pred_typeS <- reactive({
         c <- read.csv("glm_coefs_typeS.csv")
         
@@ -337,7 +334,7 @@ server <- function(input, output, session) {
                pred_typeS(), ".")
     })
     
-    
+    # Calculate type M error 
     pred_typeM <- reactive({
         c <- read.csv("glm_coefs_typeM.csv")
 
@@ -380,8 +377,8 @@ server <- function(input, output, session) {
                pred_typeM(),2), ".")
     })
     
-
-    output$heatplot <- renderPlot({
+    # heatplot power 
+    output$heatplot_pwr <- renderPlot({
         c <- read.csv("glm_coefs_pwr.csv")
         new <- expand.grid(num_respondents = seq(500, 3000, 25),
                            num_tasks = seq(1, 9, 0.25),
@@ -481,13 +478,11 @@ server <- function(input, output, session) {
     width = 550,
     height = 450)
     
-
-    
+    # heatplot type s error rate 
     output$heatplot_type_S <- renderPlot({
        
         c <- read.csv("glm_coefs_typeS.csv")
-       
-         new <- expand.grid(num_respondents = seq(500, 3000, 25),
+        new <- expand.grid(num_respondents = seq(500, 3000, 25),
                            num_tasks = seq(1, 9, 0.25),
                            true_coef = input$true_coef, 
                            num_lvls = input$num_lvls)
@@ -522,9 +517,9 @@ server <- function(input, output, session) {
             c[28, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls)
         
         o_predicted_type_s <- exp(lo_predicted_type_s)
+        
         new$pred_sig <- as.double(round((o_predicted_type_s / (1 + o_predicted_type_s))*100,2))
-
-       plot_input <- data.frame(num_respondents = input$num_respondents,
+        plot_input <- data.frame(num_respondents = input$num_respondents,
                                  num_tasks = input$num_tasks,
                                  pred_sig = 1,
                                  type_s = pred_typeS())
@@ -587,17 +582,10 @@ server <- function(input, output, session) {
     height = 450)
     
     
-    
-output$lineplot_type_M <- renderPlot({
-    
-     #input <- c()
-     #input$num_respondents <- 3000
-     #input$num_tasks <- 9
-     #input$true_coef <- 0.20
-     #input$num_lvls <- 1
+    # heatpolot type M error
+    output$lineplot_type_M <- renderPlot({
     
     c <- read.csv("glm_coefs_typeM.csv")
-    
     new <- expand.grid(num_respondents = seq(500, 3000, 25),
                        num_tasks = seq(1, 9, 0.25),
                        true_coef = input$true_coef, 
@@ -635,7 +623,6 @@ output$lineplot_type_M <- renderPlot({
     
     
     o_predicted_type_m <- round(exp(lo_predicted_type_m),2)
-
     new$pred_sig <- as.double(o_predicted_type_m)
 
     plot_input <- data.frame(num_respondents = input$num_respondents,
@@ -643,7 +630,6 @@ output$lineplot_type_M <- renderPlot({
                              pred_sig = 1,
                              type_m = round(pred_typeM(),2))
     
-
     ggplot(new, aes(num_respondents, num_tasks, fill = pred_sig)) +
         geom_raster(interpolate = T) +
         coord_cartesian(expand = FALSE) +
@@ -652,9 +638,8 @@ output$lineplot_type_M <- renderPlot({
         scale_y_continuous(breaks = c(1, 3, 5, 7, 9)) +
         scale_fill_gradient2(
             breaks = c(0, 10 ,20 ,30 ,40),
-            #labels = c("0%", "20%", "40%", "60%", "80%", "100%"),
             limits = c(0, 40),
-            midpoint = 0.5,
+            midpoint = 1.5,
             high = "#E16462FF",
             low = "#0D0887FF"
         ) +
