@@ -132,9 +132,10 @@ server <- function(input, output, session) {
         <a href=\"https://albertostefanelli.com\">Alberto Stefanelli</a> 
         and 
         <a href=\"https://mblukac.github.io\">Martin Lukac</a>. A paper 
-        with full methodological detail will be published soon. Until then,
-        please feel free to get in touch for methodological inquiries.<br><br>
-        Cite as Lukac, M. & Stefanelli, A. (2020). Conjoint Experiments:
+        with full methodological detail is called <b>Subjects, Trials, and Levels: 
+        Statistical Power in Conjoint Experiments</b> and is <a href=\"https://osf.io/preprints/socarxiv/spkcy/\">available here</a>. 
+        Please feel free to get in touch for methodological inquiries.<br><br>
+        Cite the tool as Lukac, M. & Stefanelli, A. (2020). Conjoint Experiments:
         Power Analysis Tool. Retrieved from 
         https://mblukac.shinyapps.io/conjoints-power-shiny/
         <br><br><hr><br>
