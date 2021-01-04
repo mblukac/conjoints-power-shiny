@@ -4,6 +4,7 @@
 # 
 # Authors: Martin Lukac (mblukac) and Alberto Stefanelli (albertostefanelli)
 # Date: 12 October 2020
+# Last Update: 04/01/2020
 ###############################################################################
 
 # 0. Libraries ----------------------------------------------------------------
@@ -36,7 +37,7 @@ ui <- fluidPage(
                                     min = 500,
                                     max = 3000,
                                     value = 1000,
-                                    step = 100,
+                                    step = 10, 
                                     width = '90%',
                                     ticks = F)
                     )
@@ -54,6 +55,7 @@ ui <- fluidPage(
                                     min = 1,
                                     max = 9,
                                     value = 3,
+                                    step = 1,
                                     width = "90%",
                                     ticks = F)
                     )
@@ -89,6 +91,7 @@ ui <- fluidPage(
                                     min = 2,
                                     max = 30,
                                     value = 5,
+                                    step = 1,
                                     width = "90%",
                                     ticks = F)
                     )
@@ -140,14 +143,15 @@ server <- function(input, output, session) {
         conjoint experiments based on work of 
         <a href=\"https://albertostefanelli.com\">Alberto Stefanelli</a> 
         and 
-        <a href=\"https://mblukac.github.io\">Martin Lukac</a>. A paper 
-        with full methodological detail will be published soon. Until then,
-        please feel free to get in touch for methodological inquiries.<br><br>
+        <a href=\"https://mblukac.github.io\">Martin Lukac</a>. A working paper 
+        with full methodological detail is available on the preprint server for 
+        the social sciences <a href=\"https://osf.io/preprints/socarxiv/spkcy\">SocArXiv</a>.  
+        Please feel free to get in touch for methodological inquiries.<br><br>
         Cite as Lukac, M. & Stefanelli, A. (2020). Conjoint Experiments:
         Power Analysis Tool. Retrieved from 
         https://mblukac.shinyapps.io/conjoints-power-shiny/
         <br><br><hr><br>
-        Copyright (c) 2020 Martin Lukac and Alberto Stefanelli
+        Copyright (c) 2021 Martin Lukac and Alberto Stefanelli
         <br>
         This work is distributed under MIT Licence. See the file 
         <a href=\"https://github.com/mblukac/conjoints-power-shiny/LICENSE.txt\">
@@ -638,6 +642,7 @@ server <- function(input, output, session) {
         scale_y_continuous(breaks = c(1, 3, 5, 7, 9)) +
         scale_fill_gradient2(
             breaks = c(0, 10 ,20 ,30 ,40),
+            labels = c("0x", "10x", "20x", "30x", "40x"),
             limits = c(0, 40),
             midpoint = 1.5,
             high = "#E16462FF",
