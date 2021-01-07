@@ -4,6 +4,7 @@
 # 
 # Authors: Martin Lukac (mblukac) and Alberto Stefanelli (albertostefanelli)
 # Date: 12 October 2020
+# Last Update: 04/01/2020
 ###############################################################################
 
 # 0. Libraries ----------------------------------------------------------------
@@ -36,7 +37,7 @@ ui <- fluidPage(
                                     min = 500,
                                     max = 3000,
                                     value = 1000,
-                                    step = 100,
+                                    step = 10, 
                                     width = '90%',
                                     ticks = F)
                     )
@@ -54,6 +55,7 @@ ui <- fluidPage(
                                     min = 1,
                                     max = 9,
                                     value = 3,
+                                    step = 1,
                                     width = "90%",
                                     ticks = F)
                     )
@@ -89,6 +91,7 @@ ui <- fluidPage(
                                     min = 2,
                                     max = 30,
                                     value = 5,
+                                    step = 1,
                                     width = "90%",
                                     ticks = F)
                     )
@@ -110,15 +113,24 @@ ui <- fluidPage(
         ),
 
         mainPanel(
+            tabsetPanel(type = "tabs",
+                        tabPanel("Statistical Power",
+                                 textOutput("predpwr"),
+                                 br(),
+                                 plotOutput("heatplot_pwr")),
+                        tabPanel("Type S error", textOutput("predtypes"),
+                                 br(),
+                                 plotOutput("heatplot_type_S")),
+                        tabPanel("Type M error", textOutput("predtypem"), 
+                                 br(),
+                                 plotOutput("lineplot_type_M"))
+            )    
             
-            textOutput("predpwr"),
-            
-            br(),
-            
-            plotOutput("heatplot")
         )
     )
 )
+
+
 
 # 1.B Server ------------------------------------------------------------------
 
@@ -139,7 +151,7 @@ server <- function(input, output, session) {
         Power Analysis Tool. Retrieved from 
         https://mblukac.shinyapps.io/conjoints-power-shiny/
         <br><br><hr><br>
-        Copyright (c) 2020 Martin Lukac and Alberto Stefanelli
+        Copyright (c) 2021 Martin Lukac and Alberto Stefanelli
         <br>
         This work is distributed under MIT Licence. See the file 
         <a href=\"https://github.com/mblukac/conjoints-power-shiny/LICENSE.txt\">
@@ -156,11 +168,21 @@ server <- function(input, output, session) {
         <b>Tasks:</b> Number of tasks each respondent will receive (sometimes called
         trials or selection tasks).<br><br>
         <b>Effect size:</b> The expected effect size in %. This is the expected 
-        Average Marginal Component Effect (see <a href=\"https://doi.org/10.1093/pan/mpt024\">Hainmueller et al. 2014</a>)<br><br>
+        Average Marginal Component Effect (see <a href=\"https://doi.org/10.1093/pan/mpt024\">Hainmueller et al. 2014</a>).<br><br>
         <b>Variable levels:</b> Number of levels of your categorical 
         variable — i.e. gender (male vs. female) has two categories. 
         Use the number of levels of the attribute with the highest number of levels
-        to obtain a power of the experimental design as a whole (lowest threashold)."
+        to obtain a power of the experimental design as a whole (lowest threashold).<br><br>
+        <b>Tabs:</b><br><br>
+        <b>Statistical Power:</b> The power indicates the probability of making a correct decision (to reject the null hypothesis) 
+        when the null hypothesis is false. A power between 0.8 and 0.9 is conseider acceptable in most fields within the social sciences.<br><br>
+        <b>Type S error:</b> The type S error indicates the probability that an 
+        estimated significant effect will carry an opposite sign than 
+        the population parameter (see <a href=\"http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf\">Gelman and Carlin 2014</a>).<br><br>
+        <b>Type M error:</b> The type M error indicates quantifies the factor by 
+        which the estimated effect might overshoot the true population parameter. 
+        It can be interpretated as exaggeration ratio (see <a href=\"http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf\">Gelman and Carlin 2014</a>).
+        "
         showModal(modalDialog(HTML(text_about), title = 'Help'))
     })
 
@@ -197,7 +219,8 @@ server <- function(input, output, session) {
         )
     })
     
-    # Coefficient
+    # Coefficient (hypothesized effect)
+
     observe({
         updateTextInput(
             session = session,
@@ -231,7 +254,7 @@ server <- function(input, output, session) {
     
     # Calculate predicted power
     pred_pwr <- reactive({
-        c <- read.csv("glm_coefs.csv")
+        c <- read.csv("glm_coefs_pwr.csv")
         
         lo_predicted_pwr <- c[1, 1] + 
             c[2, 1]  * log(input$num_respondents) + 
@@ -266,15 +289,103 @@ server <- function(input, output, session) {
         
         paste0(round(o_predicted_pwr / (1 + o_predicted_pwr), 2) * 100, "%")
     })
-    
+
     output$predpwr <- renderText({
         
         paste0("Predicted statistical power for the specificed design is ", 
-              pred_pwr(), ".")
+               pred_pwr(), ".")
     })
     
-    output$heatplot <- renderPlot({
-        c <- read.csv("glm_coefs.csv")
+    # Calculate typeS error rate
+    pred_typeS <- reactive({
+        c <- read.csv("glm_coefs_typeS.csv")
+        
+        lo_predicted_type_s <- c[1, 1] + 
+            c[2, 1]  * log(input$num_respondents) + 
+            c[3, 1]  * log(input$num_tasks) + 
+            c[4, 1]  * log(input$true_coef) + 
+            c[5, 1]  * log(input$num_lvls) +
+            c[6, 1]  * I(log(input$num_respondents) ^ 2) + 
+            c[7, 1]  * I(log(input$num_tasks) ^ 2) + 
+            c[8, 1]  * I(log(input$true_coef) ^ 2) + 
+            c[9, 1]  * I(log(input$num_lvls) ^ 2) +
+            c[10, 1] * I(log(input$num_respondents) ^ 3) + 
+            c[11, 1] * I(log(input$num_tasks) ^ 3) + 
+            c[12, 1] * I(log(input$true_coef) ^ 3) + 
+            c[13, 1] * I(log(input$num_lvls) ^ 3) +
+            c[14, 1] * I(log(input$num_respondents) ^ 4) + 
+            c[15, 1] * I(log(input$num_tasks) ^ 4) + 
+            c[16, 1] * I(log(input$true_coef) ^ 4) + 
+            c[17, 1] * I(log(input$num_lvls) ^ 4) +
+            c[18, 1] * log(input$num_respondents) * log(input$num_tasks) +
+            c[19, 1] * log(input$num_respondents) * log(input$true_coef) +
+            c[20, 1] * log(input$num_respondents) * log(input$num_lvls) +
+            c[21, 1] * log(input$num_tasks) * log(input$true_coef) +
+            c[22, 1] * log(input$num_tasks) * log(input$num_lvls) +
+            c[23, 1] * log(input$true_coef) * log(input$num_lvls) +
+            c[24, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$true_coef) +
+            c[25, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$num_lvls) +
+            c[26, 1] * log(input$num_respondents) * log(input$true_coef) * log(input$num_lvls) +
+            c[27, 1] * log(input$num_tasks) * log(input$true_coef) * log(input$num_lvls) +
+            c[28, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$true_coef) * log(input$num_lvls)
+        
+        o_predicted_type_s <- exp(lo_predicted_type_s)
+        
+        paste0(round((o_predicted_type_s / (1 + o_predicted_type_s))*100,2),"%")
+    })
+    
+    output$predtypes <- renderText({
+        
+        paste0("The probability that the replicated estimate has the incorrect sign (Type S error) is ", 
+               pred_typeS(), ".")
+    })
+    
+    # Calculate type M error 
+    pred_typeM <- reactive({
+        c <- read.csv("glm_coefs_typeM.csv")
+
+        lo_predicted_type_m <- c[1, 1] + 
+            c[2, 1]  * log(input$num_respondents) + 
+            c[3, 1]  * log(input$num_tasks) + 
+            c[4, 1]  * log(input$true_coef) + 
+            c[5, 1]  * log(input$num_lvls) +
+            c[6, 1]  * I(log(input$num_respondents) ^ 2) + 
+            c[7, 1]  * I(log(input$num_tasks) ^ 2) + 
+            c[8, 1]  * I(log(input$true_coef) ^ 2) + 
+            c[9, 1]  * I(log(input$num_lvls) ^ 2) +
+            c[10, 1] * I(log(input$num_respondents) ^ 3) + 
+            c[11, 1] * I(log(input$num_tasks) ^ 3) + 
+            c[12, 1] * I(log(input$true_coef) ^ 3) + 
+            c[13, 1] * I(log(input$num_lvls) ^ 3) +
+            c[14, 1] * I(log(input$num_respondents) ^ 4) + 
+            c[15, 1] * I(log(input$num_tasks) ^ 4) + 
+            c[16, 1] * I(log(input$true_coef) ^ 4) + 
+            c[17, 1] * I(log(input$num_lvls) ^ 4) +
+            c[18, 1] * log(input$num_respondents) * log(input$num_tasks) +
+            c[19, 1] * log(input$num_respondents) * log(input$true_coef) +
+            c[20, 1] * log(input$num_respondents) * log(input$num_lvls) +
+            c[21, 1] * log(input$num_tasks) * log(input$true_coef) +
+            c[22, 1] * log(input$num_tasks) * log(input$num_lvls) +
+            c[23, 1] * log(input$true_coef) * log(input$num_lvls) +
+            c[24, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$true_coef) +
+            c[25, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$num_lvls) +
+            c[26, 1] * log(input$num_respondents) * log(input$true_coef) * log(input$num_lvls) +
+            c[27, 1] * log(input$num_tasks) * log(input$true_coef) * log(input$num_lvls) +
+            c[28, 1] * log(input$num_respondents) * log(input$num_tasks) * log(input$true_coef) * log(input$num_lvls)
+        
+        o_predicted_type_m <- exp(lo_predicted_type_m)
+        
+    })
+    
+    output$predtypem <- renderText({
+        
+        paste0("The exeggeration ratio (Type M error) is ", round(
+               pred_typeM(),2), ".")
+    })
+    
+    # heatplot power 
+    output$heatplot_pwr <- renderPlot({
+        c <- read.csv("glm_coefs_pwr.csv")
         new <- expand.grid(num_respondents = seq(500, 3000, 25),
                            num_tasks = seq(1, 9, 0.25),
                            true_coef = input$true_coef, 
@@ -373,6 +484,214 @@ server <- function(input, output, session) {
     width = 550,
     height = 450)
     
+    # heatplot type s error rate 
+    output$heatplot_type_S <- renderPlot({
+       
+        c <- read.csv("glm_coefs_typeS.csv")
+        new <- expand.grid(num_respondents = seq(500, 3000, 25),
+                           num_tasks = seq(1, 9, 0.25),
+                           true_coef = input$true_coef, 
+                           num_lvls = input$num_lvls)
+        
+        lo_predicted_type_s <- c[1, 1] + 
+            c[2, 1]  * log(new$num_respondents) + 
+            c[3, 1]  * log(new$num_tasks) + 
+            c[4, 1]  * log(new$true_coef) + 
+            c[5, 1]  * log(new$num_lvls) +
+            c[6, 1]  * I(log(new$num_respondents) ^ 2) + 
+            c[7, 1]  * I(log(new$num_tasks) ^ 2) + 
+            c[8, 1]  * I(log(new$true_coef) ^ 2) + 
+            c[9, 1]  * I(log(new$num_lvls) ^ 2) +
+            c[10, 1] * I(log(new$num_respondents) ^ 3) + 
+            c[11, 1] * I(log(new$num_tasks) ^ 3) + 
+            c[12, 1] * I(log(new$true_coef) ^ 3) + 
+            c[13, 1] * I(log(new$num_lvls) ^ 3) +
+            c[14, 1] * I(log(new$num_respondents) ^ 4) + 
+            c[15, 1] * I(log(new$num_tasks) ^ 4) + 
+            c[16, 1] * I(log(new$true_coef) ^ 4) + 
+            c[17, 1] * I(log(new$num_lvls) ^ 4) +
+            c[18, 1] * log(new$num_respondents) * log(new$num_tasks) +
+            c[19, 1] * log(new$num_respondents) * log(new$true_coef) +
+            c[20, 1] * log(new$num_respondents) * log(new$num_lvls) +
+            c[21, 1] * log(new$num_tasks) * log(new$true_coef) +
+            c[22, 1] * log(new$num_tasks) * log(new$num_lvls) +
+            c[23, 1] * log(new$true_coef) * log(new$num_lvls) +
+            c[24, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) +
+            c[25, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$num_lvls) +
+            c[26, 1] * log(new$num_respondents) * log(new$true_coef) * log(new$num_lvls) +
+            c[27, 1] * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls) +
+            c[28, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls)
+        
+        o_predicted_type_s <- exp(lo_predicted_type_s)
+        
+        new$pred_sig <- as.double(round((o_predicted_type_s / (1 + o_predicted_type_s))*100,2))
+        plot_input <- data.frame(num_respondents = input$num_respondents,
+                                 num_tasks = input$num_tasks,
+                                 pred_sig = 1,
+                                 type_s = pred_typeS())
+        
+        ggplot(new, aes(num_respondents, num_tasks, fill = pred_sig)) +
+            geom_raster(interpolate = T) +
+            coord_cartesian(expand = FALSE) +
+            scale_x_continuous(breaks = c(1000, 2000, 3000),
+                               labels = c("1k", "2k", "3k")) +
+            scale_y_continuous(breaks = c(1, 3, 5, 7, 9)) +
+            scale_fill_gradient2(
+                breaks = c(0,5,10,15,20,25,30,35),
+                labels = c("0%", "5%", "10%", "15%", "20%", "25%", "30%", "35%"),
+                midpoint = (0),
+                high = "#E16462FF",
+                low = "#0D0887FF",
+                limit = c(0, 35)
+            ) +
+            theme_bw() +
+            theme(
+                axis.text = element_text(size = 12),
+                axis.title = element_text(size = 14),
+                legend.position = "bottom",
+                legend.title = element_text(size = 14, hjust = 1,
+                                            margin = margin(0, 15, 0, 0)),
+                legend.text = element_text(size = 12)
+            ) +
+            xlab("Respondents") + ylab("Tasks") +
+            guides(fill = guide_colourbar(barwidth = 20,
+                                          barheight = 0.5,
+                                          frame.colour = "black",
+                                          frame.linewidth = 1,
+                                          ticks.colour = "black",
+                                          ticks.linewidth = 1)) +
+
+            labs(fill = "Type S error rate",
+                 caption = paste0("Conjoint design: ", 
+                                  input$num_respondents, " respondents, ",
+                                  input$num_tasks, " tasks, ",
+                                  "assumed effect size ", input$true_coef,
+                                  ", on a variable with ", input$num_lvls,
+                                  " levels.")) +
+            geom_segment(aes(x = 500, y = input$num_tasks, 
+                             xend = input$num_respondents, 
+                             yend = input$num_tasks),
+                         linetype = 2) + 
+            geom_segment(aes(x = input$num_respondents, y = 1, 
+                             xend = input$num_respondents, 
+                             yend = input$num_tasks),
+                         linetype = 2) +
+            geom_point(data = plot_input, aes(num_respondents, num_tasks),
+                       size = 3.5) +
+            geom_text_repel(data = plot_input, aes(label = type_s),
+                            size = 5, 
+                            box.padding = 0.5,
+                            min.segment.length = 1)
+        
+    },
+    width = 550,
+    height = 450)
+    
+    
+    # heatpolot type M error
+    output$lineplot_type_M <- renderPlot({
+    
+    c <- read.csv("glm_coefs_typeM.csv")
+    new <- expand.grid(num_respondents = seq(500, 3000, 25),
+                       num_tasks = seq(1, 9, 0.25),
+                       true_coef = input$true_coef, 
+                       num_lvls = input$num_lvls)
+
+    
+    lo_predicted_type_m <- c[1, 1] + 
+        c[2, 1]  * log(new$num_respondents) + 
+        c[3, 1]  * log(new$num_tasks) + 
+        c[4, 1]  * log(new$true_coef) + 
+        c[5, 1]  * log(new$num_lvls) +
+        c[6, 1]  * I(log(new$num_respondents) ^ 2) + 
+        c[7, 1]  * I(log(new$num_tasks) ^ 2) + 
+        c[8, 1]  * I(log(new$true_coef) ^ 2) + 
+        c[9, 1]  * I(log(new$num_lvls) ^ 2) +
+        c[10, 1] * I(log(new$num_respondents) ^ 3) + 
+        c[11, 1] * I(log(new$num_tasks) ^ 3) + 
+        c[12, 1] * I(log(new$true_coef) ^ 3) + 
+        c[13, 1] * I(log(new$num_lvls) ^ 3) +
+        c[14, 1] * I(log(new$num_respondents) ^ 4) + 
+        c[15, 1] * I(log(new$num_tasks) ^ 4) + 
+        c[16, 1] * I(log(new$true_coef) ^ 4) + 
+        c[17, 1] * I(log(new$num_lvls) ^ 4) +
+        c[18, 1] * log(new$num_respondents) * log(new$num_tasks) +
+        c[19, 1] * log(new$num_respondents) * log(new$true_coef) +
+        c[20, 1] * log(new$num_respondents) * log(new$num_lvls) +
+        c[21, 1] * log(new$num_tasks) * log(new$true_coef) +
+        c[22, 1] * log(new$num_tasks) * log(new$num_lvls) +
+        c[23, 1] * log(new$true_coef) * log(new$num_lvls) +
+        c[24, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) +
+        c[25, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$num_lvls) +
+        c[26, 1] * log(new$num_respondents) * log(new$true_coef) * log(new$num_lvls) +
+        c[27, 1] * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls) +
+        c[28, 1] * log(new$num_respondents) * log(new$num_tasks) * log(new$true_coef) * log(new$num_lvls)
+    
+    
+    o_predicted_type_m <- round(exp(lo_predicted_type_m),2)
+    new$pred_sig <- as.double(o_predicted_type_m)
+
+    plot_input <- data.frame(num_respondents = input$num_respondents,
+                             num_tasks = input$num_tasks,
+                             pred_sig = 1,
+                             type_m = round(pred_typeM(),2))
+    
+    ggplot(new, aes(num_respondents, num_tasks, fill = pred_sig)) +
+        geom_raster(interpolate = T) +
+        coord_cartesian(expand = FALSE) +
+        scale_x_continuous(breaks = c(1000, 2000, 3000),
+                           labels = c("1k", "2k", "3k")) +
+        scale_y_continuous(breaks = c(1, 3, 5, 7, 9)) +
+        scale_fill_gradient2(
+            breaks = c(0, 10 ,20 ,30 ,40),
+            labels = c("0x", "10x", "20x", "30x", "40x"),
+            limits = c(0, 40),
+            midpoint = 1.5,
+            high = "#E16462FF",
+            low = "#0D0887FF"
+        ) +
+        theme_bw() +
+        theme(
+            axis.text = element_text(size = 12),
+            axis.title = element_text(size = 14),
+            legend.position = "bottom",
+            legend.title = element_text(size = 14, hjust = 1,
+                                        margin = margin(0, 15, 0, 0)),
+            legend.text = element_text(size = 12)
+        ) +
+        xlab("Respondents") + ylab("Tasks") +
+        guides(fill = guide_colourbar(barwidth = 20,
+                                      barheight = 0.5,
+                                      frame.colour = "black",
+                                      frame.linewidth = 1,
+                                      ticks.colour = "black",
+                                      ticks.linewidth = 1)) + 
+        labs(fill = "Exaggeration Rate",
+             caption = paste0("Conjoint design: ", 
+                              input$num_respondents, " respondents, ",
+                              input$num_tasks, " tasks, ",
+                              "assumed effect size ", input$true_coef,
+                              ", on a variable with ", input$num_lvls,
+                              " levels.")) +
+        geom_segment(aes(x = 500, y = input$num_tasks, 
+                         xend = input$num_respondents, 
+                         yend = input$num_tasks),
+                     linetype = 2) + 
+        geom_segment(aes(x = input$num_respondents, y = 1, 
+                         xend = input$num_respondents, 
+                         yend = input$num_tasks),
+                     linetype = 2) +
+        geom_point(data = plot_input, aes(num_respondents, num_tasks),
+                   size = 3.5) +
+        geom_text_repel(data = plot_input, aes(label = type_m),
+                        size = 5, 
+                        box.padding = 0.5,
+                        min.segment.length = 1)
+    
+},
+width = 550,
+height = 450)
+
 }
 
 # Run the application 
