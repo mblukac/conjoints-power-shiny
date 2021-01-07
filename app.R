@@ -14,6 +14,7 @@ library(shinythemes)
 library(shinyWidgets)
 library(shinydashboard)
 library(ggrepel)
+library(latex2exp)
 
 # 1. Shiny App ----------------------------------------------------------------
 
@@ -336,7 +337,7 @@ server <- function(input, output, session) {
     
     output$predtypes <- renderText({
         
-        paste0("The probability that the replicated estimate has the incorrect sign (Type S error) is ", 
+        paste0("The probability that the estimated coefficient has an incorrect sign (Type S error) is ", 
                pred_typeS(), ".")
     })
     
