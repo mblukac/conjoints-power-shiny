@@ -143,11 +143,11 @@ server <- function(input, output, session) {
         conjoint experiments based on work of 
         <a href=\"https://albertostefanelli.com\">Alberto Stefanelli</a> 
         and 
-        <a href=\"https://mblukac.github.io\">Martin Lukac</a>. A working paper 
-        with full methodological detail is available on the preprint server for 
-        the social sciences <a href=\"https://osf.io/preprints/socarxiv/spkcy\">SocArXiv</a>.  
+        <a href=\"https://mblukac.github.io\">Martin Lukac</a>. A paper 
+        with full methodological detail is called <b>Subjects, Trials, and Levels: 
+        Statistical Power in Conjoint Experiments</b> and is <a href=\"https://osf.io/preprints/socarxiv/spkcy/\">available here</a>. 
         Please feel free to get in touch for methodological inquiries.<br><br>
-        Cite as Lukac, M. & Stefanelli, A. (2020). Conjoint Experiments:
+        Cite the tool as Lukac, M. & Stefanelli, A. (2020). Conjoint Experiments:
         Power Analysis Tool. Retrieved from 
         https://mblukac.shinyapps.io/conjoints-power-shiny/
         <br><br><hr><br>
@@ -155,7 +155,9 @@ server <- function(input, output, session) {
         <br>
         This work is distributed under MIT Licence. See the file 
         <a href=\"https://github.com/mblukac/conjoints-power-shiny/LICENSE.txt\">
-        LICENSE.txt</a> for details."
+        LICENSE.txt</a> for details.
+        <br><br>
+        Source code available <a href=\"https://github.com/mblukac/conjoints-power-shiny\">here</a>."
         showModal(modalDialog(HTML(text_about), title = 'About'))
     })
     
