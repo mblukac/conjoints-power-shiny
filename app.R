@@ -14,7 +14,6 @@ library(shinythemes)
 library(shinyWidgets)
 library(shinydashboard)
 library(ggrepel)
-library(latex2exp)
 
 # 1. Shiny App ----------------------------------------------------------------
 
@@ -155,7 +154,7 @@ server <- function(input, output, session) {
         Copyright (c) 2021 Martin Lukac and Alberto Stefanelli
         <br>
         This work is distributed under MIT Licence. See the file 
-        <a href=\"https://github.com/mblukac/conjoints-power-shiny/LICENSE.txt\">
+        <a href=\"https://github.com/mblukac/conjoints-power-shiny/blob/master/LICENSE.txt\">
         LICENSE.txt</a> for details.
         <br><br>
         Source code available <a href=\"https://github.com/mblukac/conjoints-power-shiny\">here</a>."
@@ -174,9 +173,9 @@ server <- function(input, output, session) {
         variable — i.e. gender (male vs. female) has two categories. 
         Use the number of levels of the attribute with the highest number of levels
         to obtain a power of the experimental design as a whole (lowest threashold).<br><br>
-        <b>Tabs:</b><br><br>
+        <br><br>
         <b>Statistical Power:</b> The power indicates the probability of making a correct decision (to reject the null hypothesis) 
-        when the null hypothesis is false. A power between 0.8 and 0.9 is conseider acceptable in most fields within the social sciences.<br><br>
+        when the null hypothesis is false. A power between 0.8 and 0.9 is considered acceptable in most fields within the social sciences.<br><br>
         <b>Type S error:</b> The type S error indicates the probability that an 
         estimated significant effect will carry an opposite sign than 
         the population parameter (see <a href=\"http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf\">Gelman and Carlin 2014</a>).<br><br>
